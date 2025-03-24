@@ -1,7 +1,8 @@
 "use client";
 
 import { Table } from "@tanstack/react-table";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
+import { Link } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
     const isFiltered = table.getState().columnFilters.length > 0;
 
     return (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
             <div className="flex flex-1 items-center space-x-2">
                 <Input
                     placeholder="Filter tasks..."
@@ -36,6 +37,14 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
                 )}
             </div>
             <DataTableViewOptions table={table} />
+            <Button variant="outline" className="h-8" asChild>
+                <Link
+                    to={{
+                        pathname: "/create-project",
+                    }}>
+                    <Plus />
+                </Link>
+            </Button>
         </div>
     );
 }

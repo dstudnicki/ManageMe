@@ -3,10 +3,37 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
-export default function CardWithForm() {
+interface Task {
+    name: string;
+    title: string;
+    status: string;
+    priority: string;
+}
+
+export default function CreateProject() {
+    const navigate = useNavigate();
+    const [initialValues, setInitialValues] = useState<Task>({
+        name: "",
+        title: "",
+        status: "",
+        priority: "",
+    });
+    const [formValues, setFormValues] = useState<Task[]>([]);
+
+    const handleFormSubmit = () => {
+        setFormValues((prevFormValues) => [...prevFormValues, initialValues]);
+        navigate("/");
+    };
+
+    useEffect(() => {
+        localStorage.setItem("formValues", JSON.stringify(formValues));
+    }, [formValues]);
+
     return (
-        <Card className="w-[350px]">
+        <Card className="w-[500px]">
             <CardHeader>
                 <CardTitle>Create project</CardTitle>
                 <CardDescription>Deploy your new project in one-click.</CardDescription>
@@ -15,20 +42,38 @@ export default function CardWithForm() {
                 <form>
                     <div className="grid w-full items-center gap-4">
                         <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="name">Name</Label>
-                            <Input id="name" placeholder="Name of your project" />
+                            <Label htmlFor="name">Task name</Label>
+                            <Input onChange={(e) => setInitialValues({ ...initialValues, name: e.target.value })} id="name" value={initialValues.name} placeholder="Name of your project" />
                         </div>
                         <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="framework">Framework</Label>
-                            <Select>
-                                <SelectTrigger id="framework">
+                            <Label htmlFor="title">Task Title</Label>
+                            <Input onChange={(e) => setInitialValues({ ...initialValues, title: e.target.value })} id="title" value={initialValues.title} placeholder="Title of your project" />
+                        </div>
+                        <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="status">Status</Label>
+                            <Select onValueChange={(value) => setInitialValues({ ...initialValues, status: value })} value={initialValues.status}>
+                                <SelectTrigger id="status">
                                     <SelectValue placeholder="Select" />
                                 </SelectTrigger>
                                 <SelectContent position="popper">
-                                    <SelectItem value="next">Next.js</SelectItem>
-                                    <SelectItem value="sveltekit">SvelteKit</SelectItem>
-                                    <SelectItem value="astro">Astro</SelectItem>
-                                    <SelectItem value="nuxt">Nuxt.js</SelectItem>
+                                    <SelectItem value="backlog">Backlog</SelectItem>
+                                    <SelectItem value="todo">Todo</SelectItem>
+                                    <SelectItem value="in progress">In Progress</SelectItem>
+                                    <SelectItem value="done">Done</SelectItem>
+                                    <SelectItem value="canceled">Canceled</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="priority">Priority</Label>
+                            <Select onValueChange={(value) => setInitialValues({ ...initialValues, priority: value })} value={initialValues.priority}>
+                                <SelectTrigger id="priority">
+                                    <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                                <SelectContent position="popper">
+                                    <SelectItem value="low">Low</SelectItem>
+                                    <SelectItem value="medium">Medium</SelectItem>
+                                    <SelectItem value="high">High</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -36,7 +81,7 @@ export default function CardWithForm() {
                 </form>
             </CardContent>
             <CardFooter className="flex justify-end">
-                <Button>Add</Button>
+                <Button onClick={handleFormSubmit}>Add</Button>
             </CardFooter>
         </Card>
     );
