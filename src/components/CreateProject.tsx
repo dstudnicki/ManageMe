@@ -42,11 +42,11 @@ export default function CreateProject() {
                 <form>
                     <div className="grid w-full items-center gap-4">
                         <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="name">Task name</Label>
+                            <Label htmlFor="name">Project name</Label>
                             <Input onChange={(e) => setInitialValues({ ...initialValues, name: e.target.value })} id="name" value={initialValues.name} placeholder="Name of your project" />
                         </div>
                         <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="title">Task Title</Label>
+                            <Label htmlFor="title">Project title</Label>
                             <Input onChange={(e) => setInitialValues({ ...initialValues, title: e.target.value })} id="title" value={initialValues.title} placeholder="Title of your project" />
                         </div>
                         <div className="flex flex-col space-y-1.5">
@@ -59,8 +59,6 @@ export default function CreateProject() {
                                     <SelectItem value="backlog">Backlog</SelectItem>
                                     <SelectItem value="todo">Todo</SelectItem>
                                     <SelectItem value="in progress">In Progress</SelectItem>
-                                    <SelectItem value="done">Done</SelectItem>
-                                    <SelectItem value="canceled">Canceled</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

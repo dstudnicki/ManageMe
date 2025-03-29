@@ -10,8 +10,15 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { User } from "@/User/User";
 
 export function UserNav() {
+    const userBuilder = new User(1, "user@gmail.com", "testUser");
+
+    localStorage.setItem("user", JSON.stringify(userBuilder));
+    const user = localStorage.getItem("user");
+    const userData = user ? JSON.parse(user) : [];
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -25,25 +32,16 @@ export function UserNav() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">shadcn</p>
-                        <p className="text-xs leading-none text-muted-foreground">m@example.com</p>
+                        <p className="text-sm font-medium leading-none">{userData.username}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{userData.email}</p>
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuItem>
-                        Profile
-                        <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        Billing
-                        <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
                         Settings
                         <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>New Team</DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
