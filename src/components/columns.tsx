@@ -8,6 +8,7 @@ import { priorities, statuses } from "../data/data";
 import { Task } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
+import { Link } from "react-router";
 
 export const columns: ColumnDef<Task>[] = [
     {
@@ -27,7 +28,11 @@ export const columns: ColumnDef<Task>[] = [
     {
         accessorKey: "name",
         header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
-        cell: ({ row }) => <div className="w-[80px]">{row.getValue("name")}</div>,
+        cell: ({ row }) => (
+            <div className="w-[80px]">
+                <Link to={`/project/${row.getValue("name")}`}>{row.getValue("name")}</Link>
+            </div>
+        ),
         enableSorting: false,
         enableHiding: false,
     },
