@@ -3,13 +3,59 @@ import { priorities, statuses } from "../data/data";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, StickyNote } from "lucide-react";
+import { Task } from "@/Task/Task";
+import { useEffect, useState } from "react";
+
+interface ITask {
+    id: number;
+    name: string;
+    description: string;
+    priority: string;
+    project: string;
+    createdAt: string;
+    status: string;
+}
 
 export default function ProjectDetails() {
     const { slug } = useParams();
+    const creationDate = new Date().toISOString();
     const projects = JSON.parse(localStorage.getItem("formValues") || "[]");
     const project = projects.find((p: { name: string }) => p.name === slug);
+    const initialValues: ITask = {
+        id: Date.now(),
+        name: "Task",
+        description: "",
+        priority: "",
+        project: project.name,
+        createdAt: creationDate,
+        status: "",
+    };
+    const [taskNotStarted, setTaskNotStarted] = useState<ITask[]>([]);
+    console.log(taskNotStarted);
+    const [taskInProgress, setTaskInProgress] = useState<ITask[]>([]);
+    const [taskDone, setTaskDone] = useState<ITask[]>([]);
     const status = statuses.find((status) => status.value === project.status);
+    const taskStatusNotStarted = statuses.find((status) => taskNotStarted.some((task) => task.status === status.value));
+    const taskStatusInProgress = statuses.find((status) => taskInProgress.some((task) => task.status === status.value));
+    const taskStatusDone = statuses.find((status) => taskDone.some((task) => task.status === status.value));
     const priority = priorities.find((priority) => priority.value === project.priority);
+    const taskBuilder = new Task(initialValues.id, initialValues.name, initialValues.description, initialValues.priority, initialValues.project, initialValues.createdAt, initialValues.status);
+
+    const handleAddTaskNotStarted = () => {
+        setTaskNotStarted([{ ...taskBuilder, status: "not started" }]);
+    };
+
+    const handleAddTaskInProgress = () => {
+        setTaskInProgress([{ ...taskBuilder, status: "in progress" }]);
+    };
+
+    const handleAddTaskDone = () => {
+        setTaskDone([{ ...taskBuilder, status: "done" }]);
+    };
+
+    useEffect(() => {
+        localStorage.setItem("task", JSON.stringify({ taskNotStarted, taskInProgress, taskDone }));
+    }, [taskNotStarted, taskInProgress, taskDone]);
 
     if (!project) return <p>Project not found</p>;
 
@@ -25,69 +71,72 @@ export default function ProjectDetails() {
                 <Card className="flex flex-col bg-muted gap-2 p-2">
                     <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[110px] h-[20px] px-2 my-2">
                         <div className="h-[8px] w-[8px] bg-[#979797] rounded-full"></div>
-                        <p className="hidden text-sm md:block">Not started</p>
+                        <p className=" text-sm ">Not started</p>
                     </div>
-                    {/* map not started */}
-                    <Card className="py-2 gap-4">
-                        <CardHeader className="px-2.5 pb-1.5">
-                            <CardTitle className="flex text-sm font-normal gap-2">
-                                <StickyNote className="h-5 w-5" /> Dodac profile postaci (2 lub 3 darmowe a reszta platna
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="text-xs px-2.5 pb-1.5">
-                            <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[90px] h-[18px] px-2">
-                                <div className="h-[8px] w-[8px] bg-[#979797] rounded-full"></div>
-                                <p className="hidden md:block">{status?.label}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Button className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
+                    {taskNotStarted.map((task, index) => (
+                        <Card key={index} className="py-2 gap-4">
+                            <CardHeader className="px-2.5 pb-1.5">
+                                <CardTitle className="flex text-sm font-normal gap-2">
+                                    <StickyNote className="h-5 w-5" /> {task.name}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-xs px-2.5 pb-1.5">
+                                <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[110px] h-[18px] px-2">
+                                    <div className="h-[8px] w-[8px] bg-[#979797] rounded-full"></div>
+                                    <p className="text-sm">{taskStatusNotStarted?.label}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                    <Button onClick={handleAddTaskNotStarted} className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
                         <Plus /> New task
                     </Button>
                 </Card>
-                <Card className="flex flex-col bg-muted gap-2 p-2">
+                <Card className="flex flex-col bg-[#d7f6fd] gap-2 p-2 ">
                     <div className="flex items-center gap-[6px] rounded-2xl bg-[#adefff] bg-opacity-25 w-[110px] h-[20px] px-2 my-2">
                         <div className="h-[8px] w-[8px] bg-[#5ed0ec] rounded-full"></div>
-                        <p className="hidden text-sm text-[#092f38]  md:block">In progress</p>
+                        <p className=" text-sm text-[#092f38]">In progress</p>
                     </div>
-                    {/* map progress */}
-                    <Card className="py-2 gap-4">
-                        <CardHeader className="px-2.5 pb-1.5">
-                            <CardTitle className="flex text-sm font-normal gap-2">
-                                <StickyNote className="h-5 w-5" /> Dodac profile postaci (2 lub 3 darmowe a reszta platna
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="text-xs px-2.5 pb-1.5">
-                            <div className="flex items-center gap-[6px] rounded-2xl bg-[#adefff] bg-opacity-25 w-[90px] h-[18px] px-2">
-                                <div className="h-[8px] w-[8px] bg-[#5ed0ec]  rounded-full"></div>
-                                <p className="hidden text-[#092f38] md:block">{status?.label}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Button className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
+                    {taskInProgress.map((task, index) => (
+                        <Card key={index} className="py-2 gap-4">
+                            <CardHeader className="px-2.5 pb-1.5">
+                                <CardTitle className="flex text-sm font-normal gap-2">
+                                    <StickyNote className="h-5 w-5" /> {task.name}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-xs px-2.5 pb-1.5">
+                                <div className="flex items-center gap-[6px] rounded-2xl bg-[#adefff] bg-opacity-25 w-[110px] h-[18px] px-2">
+                                    <div className="h-[8px] w-[8px] bg-[#5ed0ec] rounded-full"></div>
+                                    <p className=" text-sm text-[#092f38]">{taskStatusInProgress?.label}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                    <Button onClick={handleAddTaskInProgress} className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
                         <Plus /> New task
                     </Button>
                 </Card>
-                <Card className="flex flex-col bg-muted gap-2 p-2">
+                <Card className="flex flex-col bg-[#d5ffec] gap-2 p-2">
                     <div className="flex items-center gap-[6px] rounded-2xl bg-[#acffda] bg-opacity-25 w-[110px] h-[20px] px-2 my-2">
                         <div className="h-[8px] w-[8px] bg-[#28C780] rounded-full"></div>
-                        <p className="hidden text-sm text-[#053821] md:block">Done</p>
+                        <p className=" text-sm text-[#053821] ">Done</p>
                     </div>
-                    {/* map done */}
-                    <Card className="py-2 gap-4">
-                        <CardHeader className="px-2.5 pb-1.5">
-                            <CardTitle className="flex text-sm font-normal gap-2">
-                                <StickyNote className="h-5 w-5" /> Dodac profile postaci (2 lub 3 darmowe a reszta platna
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="text-xs px-2.5 pb-1.5">
-                            <div className="flex items-center gap-[6px] rounded-2xl bg-[#acffda]  bg-opacity-25 w-[90px] h-[18px] px-2">
-                                <div className="h-[8px] w-[8px] bg-[#28C780] rounded-full"></div>
-                                <p className="hidden text-[#053821] md:block">{status?.label}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Button className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
+                    {taskDone.map((task, index) => (
+                        <Card key={index} className="py-2 gap-4">
+                            <CardHeader className="px-2.5 pb-1.5">
+                                <CardTitle className="flex text-sm font-normal gap-2">
+                                    <StickyNote className="h-5 w-5" /> {task.name}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-xs px-2.5 pb-1.5">
+                                <div className="flex items-center gap-[6px] rounded-2xl bg-[#acffda] bg-opacity-25 w-[110px] h-[18px] px-2">
+                                    <div className="h-[8px] w-[8px] bg-[#28C780] rounded-full"></div>
+                                    <p className=" text-sm">{taskStatusDone?.label}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                    <Button onClick={handleAddTaskDone} className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
                         <Plus /> New task
                     </Button>
                 </Card>

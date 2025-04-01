@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
-interface Task {
+interface Project {
     name: string;
     title: string;
     status: string;
@@ -15,13 +15,13 @@ interface Task {
 
 export default function CreateProject() {
     const navigate = useNavigate();
-    const [initialValues, setInitialValues] = useState<Task>({
+    const [initialValues, setInitialValues] = useState<Project>({
         name: "",
         title: "",
         status: "",
         priority: "",
     });
-    const [formValues, setFormValues] = useState<Task[]>([]);
+    const [formValues, setFormValues] = useState<Project[]>([]);
 
     const handleFormSubmit = () => {
         setFormValues((prevFormValues) => [...prevFormValues, initialValues]);
