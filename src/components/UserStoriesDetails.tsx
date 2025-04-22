@@ -3,9 +3,19 @@ import { priorities, statuses } from "../data/data";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, StickyNote } from "lucide-react";
-import { UserStory } from "@/UserStory/UserStory";
+import { Task } from "@/Task/Task";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
+interface ITask {
+    id: number;
+    name: string;
+    description: string;
+    priority: string;
+    userStory: string;
+    createdAt: string;
+    status: string;
+}
 
 interface IUserStory {
     id: number;
@@ -18,38 +28,53 @@ interface IUserStory {
     tasks: object;
 }
 
-export default function ProjectDetails() {
-    const { slug } = useParams();
+export default function UserStoriesDetails() {
+    const { id } = useParams();
+    const idToNumber = id ? Number(id) : null;
     const creationDate = new Date().toISOString();
-    const projects = JSON.parse(localStorage.getItem("formValues") || "[]");
-    const project = projects.find((p: { name: string }) => p.name === slug);
+    const userStories = JSON.parse(localStorage.getItem("userStories") || "[]");
+    const userStory = userStories.find((u: { id: number }) => u.id === idToNumber);
 
-    const [userStories, setUserStories] = useState<IUserStory[]>([]);
+    const [tasks, setTasks] = useState<ITask[]>([]);
 
-    const status = statuses.find((status) => status.value === project.status);
+    const status = statuses.find((status) => status.value === userStory.status);
 
-    const notStartedStories = userStories.filter((story) => story.status === "not started");
-    const inProgressStories = userStories.filter((story) => story.status === "in progress");
-    const doneStories = userStories.filter((story) => story.status === "done");
+    const notStartedStories = tasks.filter((task) => task.status === "not started");
+    const inProgressStories = tasks.filter((task) => task.status === "in progress");
+    const doneStories = tasks.filter((task) => task.status === "done");
 
-    const priority = priorities.find((priority) => priority.value === project.priority);
+    const priority = priorities.find((priority) => priority.value === userStory.priority);
 
-    const handleAddUserStory = (status: string) => {
-        const newUserStory = new UserStory(Date.now(), "User Story", "", "", project?.name || "", creationDate, status, {});
-        setUserStories((prev) => [...prev, newUserStory]);
+    const handleAddTask = (status: string) => {
+        const newTask = new Task(Date.now(), "Task", "", "", userStory?.name || "", creationDate, status);
+        setTasks((prev) => [...prev, newTask]);
     };
 
     useEffect(() => {
-        localStorage.setItem("userStories", JSON.stringify(userStories));
-    }, [userStories]);
+        const updatedUserStories = userStories.map((story: IUserStory) => {
+            if (story.id === idToNumber) {
+                return {
+                    ...story,
+                    tasks: {
+                        notStarted: tasks.filter((t) => t.status === "not started"),
+                        inProgress: tasks.filter((t) => t.status === "in progress"),
+                        done: tasks.filter((t) => t.status === "done"),
+                    },
+                };
+            }
+            return story;
+        });
 
-    if (!project) return <p>Project not found</p>;
+        localStorage.setItem("userStories", JSON.stringify(updatedUserStories));
+    }, [tasks, userStories, idToNumber]);
+
+    if (!userStory) return <p>Project not found</p>;
 
     return (
         <main className="flex flex-col px-4 text-xl xl:container sm:px-8 lg:px-12">
             <div className="flex flex-col md:flex-row md:gap-4">
-                <h1>{project.name}</h1>
-                <h3>{project.title}</h3>
+                <h1>{userStory.name}</h1>
+                <h3>{userStory.title}</h3>
                 <span>{status?.label}</span>
                 <span>{priority?.label}</span>
             </div>
@@ -76,8 +101,8 @@ export default function ProjectDetails() {
                             </Card>
                         </Link>
                     ))}
-                    <Button onClick={() => handleAddUserStory("not started")} className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
-                        <Plus /> New story
+                    <Button onClick={() => handleAddTask("not started")} className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
+                        <Plus /> New task
                     </Button>
                 </Card>
                 <Card className="flex flex-col bg-[#d7f6fd] gap-2 p-2 ">
@@ -100,8 +125,8 @@ export default function ProjectDetails() {
                             </CardContent>
                         </Card>
                     ))}
-                    <Button onClick={() => handleAddUserStory("in progress")} className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
-                        <Plus /> New story
+                    <Button onClick={() => handleAddTask("in progress")} className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
+                        <Plus /> New task
                     </Button>
                 </Card>
                 <Card className="flex flex-col bg-[#d5ffec] gap-2 p-2">
@@ -124,8 +149,8 @@ export default function ProjectDetails() {
                             </CardContent>
                         </Card>
                     ))}
-                    <Button onClick={() => handleAddUserStory("done")} className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
-                        <Plus /> New story
+                    <Button onClick={() => handleAddTask("done")} className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
+                        <Plus /> New task
                     </Button>
                 </Card>
             </section>

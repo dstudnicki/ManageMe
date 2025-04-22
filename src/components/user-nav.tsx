@@ -10,14 +10,12 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from "@/User/User";
+import { Users } from "@/User/User";
 
 export function UserNav() {
-    const userBuilder = new User(1, "user@gmail.com", "testUser");
-
-    localStorage.setItem("user", JSON.stringify(userBuilder));
-    const user = localStorage.getItem("user");
-    const userData = user ? JSON.parse(user) : [];
+    localStorage.setItem("users", JSON.stringify(Users));
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const admin = users.find((u: { id: number }) => u.id === 1);
 
     return (
         <DropdownMenu>
@@ -32,8 +30,8 @@ export function UserNav() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{userData.username}</p>
-                        <p className="text-xs leading-none text-muted-foreground">{userData.email}</p>
+                        <p className="text-sm font-medium leading-none">{admin.username}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{admin.email}</p>
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

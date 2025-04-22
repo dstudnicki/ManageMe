@@ -6,6 +6,7 @@ import ErrorPage from "./error-page";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import CreateProjectRoute from "./routes/CreateProjectRoute.tsx";
 import ProjectDetailsRoute from "./routes/ProjectDetailsRoute.tsx";
+import UserStoriesDetailsRoute from "./routes/UserStoriesDetailsRoute.tsx";
 
 const router = createBrowserRouter([
     {
@@ -21,6 +22,11 @@ const router = createBrowserRouter([
     {
         path: "/project/:slug",
         element: <ProjectDetailsRoute />,
+        errorElement: <ErrorPage />,
+    },
+    {
+        path: "/project/:slug/:id",
+        element: <UserStoriesDetailsRoute />,
         errorElement: <ErrorPage />,
     },
 ]);
