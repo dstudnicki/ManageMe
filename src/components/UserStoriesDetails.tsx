@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Plus, StickyNote } from "lucide-react";
 import { Task } from "@/Task/Task";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface ITask {
     id: number;
@@ -15,6 +16,7 @@ interface ITask {
     userStory: string;
     createdAt: string;
     status: string;
+    user: string;
 }
 
 interface IUserStory {
@@ -36,8 +38,11 @@ export default function UserStoriesDetails() {
     const userStory = userStories.find((u: { id: number }) => u.id === idToNumber);
 
     const [tasks, setTasks] = useState<ITask[]>([]);
+    const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const status = statuses.find((status) => status.value === userStory.status);
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
 
     const notStartedStories = tasks.filter((task) => task.status === "not started");
     const inProgressStories = tasks.filter((task) => task.status === "in progress");
@@ -46,8 +51,18 @@ export default function UserStoriesDetails() {
     const priority = priorities.find((priority) => priority.value === userStory.priority);
 
     const handleAddTask = (status: string) => {
-        const newTask = new Task(Date.now(), "Task", "", "", userStory?.name || "", creationDate, status);
+        const newTask = new Task(Date.now(), "Task", "", "", userStory?.name || "", creationDate, status, "");
         setTasks((prev) => [...prev, newTask]);
+    };
+
+    const handleOpenSidebar = (task: ITask) => {
+        setSidebarOpen(true);
+        setSelectedTask(task);
+    };
+
+    const handleCloseSidebar = () => {
+        setSidebarOpen(false);
+        setSelectedTask(null);
     };
 
     useEffect(() => {
@@ -84,22 +99,20 @@ export default function UserStoriesDetails() {
                         <div className="h-[8px] w-[8px] bg-[#979797] rounded-full"></div>
                         <p className=" text-sm ">Not started</p>
                     </div>
-                    {notStartedStories.map((story, index) => (
-                        <Link to={`${story.id}`} key={index}>
-                            <Card className="py-2 gap-4">
-                                <CardHeader className="px-2.5 pb-1.5">
-                                    <CardTitle className="flex text-sm font-normal gap-2">
-                                        <StickyNote className="h-5 w-5" /> {story.name}
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="text-xs px-2.5 pb-1.5">
-                                    <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[110px] h-[18px] px-2">
-                                        <div className="h-[8px] w-[8px] bg-[#979797] rounded-full"></div>
-                                        <p className="text-sm">Not Started</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </Link>
+                    {notStartedStories.map((task, index) => (
+                        <Card key={index} className="py-2 gap-4" onClick={() => handleOpenSidebar(task)}>
+                            <CardHeader className="px-2.5 pb-1.5">
+                                <CardTitle className="flex text-sm font-normal gap-2">
+                                    <StickyNote className="h-5 w-5" /> {task.name}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-xs px-2.5 pb-1.5">
+                                <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[110px] h-[18px] px-2">
+                                    <div className="h-[8px] w-[8px] bg-[#979797] rounded-full"></div>
+                                    <p className="text-sm">Not Started</p>
+                                </div>
+                            </CardContent>
+                        </Card>
                     ))}
                     <Button onClick={() => handleAddTask("not started")} className="bg-muted text-muted-foreground border justify-start" variant={"outline"}>
                         <Plus /> New task
@@ -154,6 +167,7 @@ export default function UserStoriesDetails() {
                     </Button>
                 </Card>
             </section>
+            <SidebarProvider>{sidebarOpen && selectedTask && <AppSidebar side="right" task={selectedTask} close={() => handleCloseSidebar()} users={users} />}</SidebarProvider>
         </main>
     );
 }

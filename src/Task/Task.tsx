@@ -6,8 +6,9 @@ export class Task {
     public userStory: string;
     public createdAt: string;
     public status: string;
+    public user: string;
 
-    public constructor(id: number, name: string, description: string, priority: string, userStory: string, createdAt: string, status: string) {
+    public constructor(id: number, name: string, description: string, priority: string, userStory: string, createdAt: string, status: string, user: string) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -15,5 +16,6 @@ export class Task {
         this.userStory = userStory;
         this.createdAt = createdAt;
         this.status = status;
+        this.user = user;
     }
 }
