@@ -55,7 +55,7 @@ export default function ProjectDetails() {
             </div>
             <section className="mt-6 grid grid-rows-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Card className="flex flex-col bg-muted gap-2 p-2">
-                    <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[110px] h-[20px] px-2 my-2">
+                    <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[130px] h-[20px] px-2 my-2">
                         <div className="h-[8px] w-[8px] bg-[#979797] rounded-full"></div>
                         <p className=" text-sm ">Not started</p>
                     </div>
@@ -68,7 +68,7 @@ export default function ProjectDetails() {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="text-xs px-2.5 pb-1.5">
-                                    <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[110px] h-[18px] px-2">
+                                    <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[130px] h-[18px] px-2">
                                         <div className="h-[8px] w-[8px] bg-[#979797] rounded-full"></div>
                                         <p className="text-sm">Not Started</p>
                                     </div>
@@ -81,7 +81,7 @@ export default function ProjectDetails() {
                     </Button>
                 </Card>
                 <Card className="flex flex-col bg-[#d7f6fd] gap-2 p-2 ">
-                    <div className="flex items-center gap-[6px] rounded-2xl bg-[#adefff] bg-opacity-25 w-[110px] h-[20px] px-2 my-2">
+                    <div className="flex items-center gap-[6px] rounded-2xl bg-[#adefff] bg-opacity-25 w-[130px] h-[20px] px-2 my-2">
                         <div className="h-[8px] w-[8px] bg-[#5ed0ec] rounded-full"></div>
                         <p className=" text-sm text-[#092f38]">In progress</p>
                     </div>
@@ -93,7 +93,7 @@ export default function ProjectDetails() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="text-xs px-2.5 pb-1.5">
-                                <div className="flex items-center gap-[6px] rounded-2xl bg-[#adefff] bg-opacity-25 w-[110px] h-[18px] px-2">
+                                <div className="flex items-center gap-[6px] rounded-2xl bg-[#adefff] bg-opacity-25 w-[130px] h-[18px] px-2">
                                     <div className="h-[8px] w-[8px] bg-[#5ed0ec] rounded-full"></div>
                                     <p className=" text-sm text-[#092f38]">In Progress</p>
                                 </div>
@@ -105,7 +105,7 @@ export default function ProjectDetails() {
                     </Button>
                 </Card>
                 <Card className="flex flex-col bg-[#d5ffec] gap-2 p-2">
-                    <div className="flex items-center gap-[6px] rounded-2xl bg-[#acffda] bg-opacity-25 w-[110px] h-[20px] px-2 my-2">
+                    <div className="flex items-center gap-[6px] rounded-2xl bg-[#acffda] bg-opacity-25 w-[130px] h-[20px] px-2 my-2">
                         <div className="h-[8px] w-[8px] bg-[#28C780] rounded-full"></div>
                         <p className=" text-sm text-[#053821] ">Done</p>
                     </div>
@@ -117,7 +117,7 @@ export default function ProjectDetails() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="text-xs px-2.5 pb-1.5">
-                                <div className="flex items-center gap-[6px] rounded-2xl bg-[#acffda] bg-opacity-25 w-[110px] h-[18px] px-2">
+                                <div className="flex items-center gap-[6px] rounded-2xl bg-[#acffda] bg-opacity-25 w-[130px] h-[18px] px-2">
                                     <div className="h-[8px] w-[8px] bg-[#28C780] rounded-full"></div>
                                     <p className=" text-sm">Done</p>
                                 </div>
