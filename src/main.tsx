@@ -7,6 +7,8 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import CreateProjectRoute from "./routes/CreateProjectRoute.tsx";
 import ProjectDetailsRoute from "./routes/ProjectDetailsRoute.tsx";
 import UserStoriesDetailsRoute from "./routes/UserStoriesDetailsRoute.tsx";
+import LoginPageRoute from "./routes/LoginPageRoute.tsx";
+import RegisterPageRoute from "./routes/RegisterPageRoute.tsx";
 
 const router = createBrowserRouter([
     {
@@ -27,6 +29,16 @@ const router = createBrowserRouter([
     {
         path: "/project/:slug/:id",
         element: <UserStoriesDetailsRoute />,
+        errorElement: <ErrorPage />,
+    },
+    {
+        path: "/login",
+        element: <LoginPageRoute />,
+        errorElement: <ErrorPage />,
+    },
+    {
+        path: "/register",
+        element: <RegisterPageRoute />,
         errorElement: <ErrorPage />,
     },
 ]);
