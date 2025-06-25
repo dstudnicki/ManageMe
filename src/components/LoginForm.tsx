@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormItem, FormLabel, FormMessage, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "../hooks/useAuth";
-import { redirect } from "react-router";
+import { useNavigate } from "react-router";
 
 const formSchema = z.object({
     email: z.string().min(2, "Email must be at least 2 characters long").max(50, "Email must be at most 50 characters long").email("This is not a valid email"),
@@ -17,6 +17,7 @@ export default function LoginForm() {
     const [loginError, setLoginError] = useState({ email: "", password: "" });
     // const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const { login } = useAuth();
+    const navigate = useNavigate();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -30,6 +31,7 @@ export default function LoginForm() {
         setLoginError({ email: "", password: "" });
 
         const response = await login(values.email, values.password);
+        console.log("Login response:", response);
 
         if (response?.error) {
             setLoginError({
@@ -37,7 +39,7 @@ export default function LoginForm() {
                 password: "Invalid email or password.",
             });
         } else {
-            redirect("/");
+            navigate("/", { replace: true });
         }
     }
 

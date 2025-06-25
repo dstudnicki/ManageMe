@@ -34,4 +34,4 @@ const taskSchema = new Schema({
     },
 });
 
-module.exports = mongoose.model("Story", storySchema);
+module.exports = mongoose.model("Task", storySchema);

@@ -1,23 +1,22 @@
 import { useState, useEffect } from "react";
 import { api } from "../services/api";
-import { useNavigate } from "react-router";
 
 export const useAuth = () => {
-    const [user, setUser] = useState<{ _id: string; username: string; email: string } | null>(null);
-    const navigate = useNavigate();
-
+    const [user, setUser] = useState<{ _id: string; email: string } | null>(null);
     // Login function
     const login = async (email: string, password: string) => {
         try {
             const { data } = await api.post("/auth/login", { email, password });
             const token = data.token;
-            const expirationTime = Date.now() + 3600 * 1000; // 1 hour from now
-            localStorage.setItem("token", token); // Store token
-            localStorage.setItem("tokenExpiration", expirationTime.toString()); // Store expiration timestamp
-            setTokenExpiry(); // Set up the token expiration timeout
-            await fetchMyProfile(); // Fetch your profile after login
-            navigate("/", { replace: true }); // Navigate to posts or any other page
-            window.location.reload(); // Reload the page to reflect the logged-in state
+            const expirationTime = Date.now() + 3600 * 1000;
+            localStorage.setItem("token", token);
+            localStorage.setItem("tokenExpiration", expirationTime.toString());
+            setTokenExpiry();
+            const user = await fetchMyProfile();
+            if (user) {
+                return { success: true, user };
+            }
+            return { error: "Failed to fetch user" };
         } catch (error) {
             console.error("Login failed:", error);
         }
@@ -41,8 +40,10 @@ export const useAuth = () => {
                 },
             });
             setUser(data.user);
+            return data.user;
         } catch (error) {
             console.error("Failed to fetch your profile:", error);
+            return null;
         }
     };
 

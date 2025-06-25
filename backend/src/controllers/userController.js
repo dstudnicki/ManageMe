@@ -3,12 +3,12 @@ const bcrypt = require("bcrypt");
 
 const getUserProfile = async (req, res) => {
     try {
-        const { username } = req.params;
+        const { email } = req.params;
 
         let user;
 
-        if (username) {
-            user = await User.findOne({ username }).select("-password");
+        if (email) {
+            user = await User.findOne({ email }).select("-password");
         } else {
             user = await User.findById(req.userId).select("-password");
         }
@@ -44,10 +44,9 @@ const getUserProfileById = async (req, res) => {
 const updateUserProfile = async (req, res) => {
     try {
         const userId = req.userId;
-        const { username, email, password } = req.body;
+        const { email, password } = req.body;
 
         const updateFields = {};
-        if (username) updateFields.username = username;
         if (email) updateFields.email = email;
         if (password) updateFields.password = await bcrypt.hash(password, 10);
 

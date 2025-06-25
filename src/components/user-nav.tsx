@@ -10,17 +10,43 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Users } from "@/User/User";
+// import { Users } from "@/User/User";
 import { Link } from "react-router";
+import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 
 export function UserNav() {
-    localStorage.setItem("users", JSON.stringify(Users));
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const admin = users.find((u: { id: number }) => u.id === 1);
+    const { logout, user, fetchMyProfile } = useAuth();
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+    const handleAuthentication = async () => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            await fetchMyProfile();
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(false);
+        }
+    };
+
+    const handleLogout = () => {
+        logout();
+        handleAuthentication();
+    };
+
+    useEffect(() => {
+        const onStorageChange = () => handleAuthentication();
+        handleAuthentication();
+        window.addEventListener("storage", onStorageChange);
+
+        return () => {
+            window.removeEventListener("storage", onStorageChange);
+        };
+    }, []);
 
     return (
         <>
-            {admin ? (
+            {isAuthenticated ? (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -33,8 +59,8 @@ export function UserNav() {
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">{admin.username}</p>
-                                <p className="text-xs leading-none text-muted-foreground">{admin.email}</p>
+                                <p className="text-sm font-medium leading-none">{user?.email}</p>
+                                <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
@@ -45,7 +71,7 @@ export function UserNav() {
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogout}>
                             Log out
                             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
                         </DropdownMenuItem>
