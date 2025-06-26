@@ -1,3 +1,4 @@
+const Project = require("../models/Project");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 
@@ -17,9 +18,9 @@ const getUserProfile = async (req, res) => {
             return res.status(404).json({ error: "User not found" });
         }
 
-        // const posts = await Post.find({ user: user._id });
+        const projects = await Project.find({ user: user._id });
 
-        res.status(200).json({ user });
+        res.status(200).json({ user, projects });
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch user profile", message: error.message });
     }

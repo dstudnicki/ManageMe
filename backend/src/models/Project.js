@@ -18,11 +18,6 @@ const projectSchema = new Schema({
         type: String,
         required: [true, "Please select priority"],
     },
-    project: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Project",
-        required: true,
-    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
