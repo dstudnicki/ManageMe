@@ -1,14 +1,25 @@
-"use client";
-
 import { MoreHorizontal } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { api } from "@/services/api";
 
-export function DataTableRowActions() {
-    const handleDelete = () => {
-        localStorage.removeItem("formValues");
-        window.location.reload();
+interface DataTableRowActionsProps {
+    projectId: string;
+    onDelete?: (id: string) => void;
+}
+
+export function DataTableRowActions({ projectId, onDelete }: DataTableRowActionsProps) {
+    const deleteProject = async () => {
+        try {
+            await api.delete(`/projects/${projectId}`);
+            if (onDelete) {
+                onDelete(projectId);
+            } else {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error("Failed to delete post:", error);
+        }
     };
 
     return (
@@ -22,7 +33,7 @@ export function DataTableRowActions() {
             <DropdownMenuContent align="end" className="w-[160px]">
                 <DropdownMenuItem>Edit</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
+                <DropdownMenuItem onClick={deleteProject}>Delete</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );

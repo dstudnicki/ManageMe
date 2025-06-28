@@ -18,7 +18,7 @@ const createProject = async (req, res) => {
 
 const getAllProjects = async (req, res) => {
     try {
-        const projects = await Project.find().populate("user", "email").populate("email");
+        const projects = await Project.find().populate("user", "email");
         res.status(200).json(projects);
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch projects" });

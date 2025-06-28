@@ -6,6 +6,7 @@ import { Plus, StickyNote } from "lucide-react";
 import { UserStory } from "@/UserStory/UserStory";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { api } from "@/services/api";
 
 interface IUserStory {
     id: number;
@@ -18,21 +19,48 @@ interface IUserStory {
     tasks: object;
 }
 
+interface IProject {
+    _id: string;
+    name: string;
+    title: string;
+    status: string;
+    priority: string;
+    user: {
+        _id: string | undefined;
+        email: string;
+    };
+    createdAt: string;
+}
+
 export default function ProjectDetails() {
     const { slug } = useParams();
     const creationDate = new Date().toISOString();
-    const projects = JSON.parse(localStorage.getItem("formValues") || "[]");
+    // const projects = JSON.parse(localStorage.getItem("formValues") || "[]");
+    const [projects, setProjects] = useState<IProject[]>([]);
+    const [userStories, setUserStories] = useState<IUserStory[]>([]);
     const project = projects.find((p: { name: string }) => p.name === slug);
 
-    const [userStories, setUserStories] = useState<IUserStory[]>([]);
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const { data: projects } = await api.get("/projects");
+                const sortedProjects = projects.sort((a: IProject, b: IProject) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                setProjects(sortedProjects);
+            } catch (error) {
+                console.error("Error fetching projects:", error);
+            }
+        };
 
-    const status = statuses.find((status) => status.value === project.status);
+        fetchProjects();
+    }, []);
+
+    const status = statuses.find((status) => status.value === project?.status);
 
     const notStartedStories = userStories.filter((story) => story.status === "not started");
     const inProgressStories = userStories.filter((story) => story.status === "in progress");
     const doneStories = userStories.filter((story) => story.status === "done");
 
-    const priority = priorities.find((priority) => priority.value === project.priority);
+    const priority = priorities.find((priority) => priority.value === project?.priority);
 
     const handleAddUserStory = (status: string) => {
         const newUserStory = new UserStory(Date.now(), "User Story", "", "", project?.name || "", creationDate, status, {});

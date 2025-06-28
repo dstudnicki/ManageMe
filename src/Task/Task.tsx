@@ -1,5 +1,5 @@
 export class Task {
-    public id: number;
+    public id: string;
     public name: string;
     public description: string;
     public priority: string;
@@ -8,7 +8,7 @@ export class Task {
     public status: string;
     public user: string;
 
-    public constructor(id: number, name: string, description: string, priority: string, userStory: string, createdAt: string, status: string, user: string) {
+    public constructor(id: string, name: string, description: string, priority: string, userStory: string, createdAt: string, status: string, user: string) {
         this.id = id;
         this.name = name;
         this.description = description;

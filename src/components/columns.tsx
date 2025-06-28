@@ -1,16 +1,26 @@
-"use client";
-
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { priorities, statuses } from "../data/data";
-import { Task } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Link } from "react-router";
 
-export const columns: ColumnDef<Task>[] = [
+interface IProject {
+    _id: string;
+    name: string;
+    title: string;
+    status: string;
+    priority: string;
+    user: {
+        _id: string | undefined;
+        email: string;
+    };
+    createdAt: string;
+}
+
+export const columns: ColumnDef<IProject>[] = [
     {
         id: "select",
         header: ({ table }) => (
@@ -91,6 +101,6 @@ export const columns: ColumnDef<Task>[] = [
     },
     {
         id: "actions",
-        cell: () => <DataTableRowActions />,
+        cell: ({ row }) => <DataTableRowActions projectId={row.original._id.toString()} />,
     },
 ];

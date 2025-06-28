@@ -1,10 +1,40 @@
+import { useEffect, useState } from "react";
 import { columns } from "./components/columns";
 import { DataTable } from "./components/data-table";
 import { UserNav } from "./components/user-nav";
+import { api } from "./services/api";
 
-export default function TaskPage() {
-    const rawData = localStorage.getItem("formValues");
-    const data = rawData ? JSON.parse(rawData) : [];
+interface IProject {
+    _id: string;
+    name: string;
+    title: string;
+    status: string;
+    priority: string;
+    user: {
+        _id: string | undefined;
+        email: string;
+    };
+    createdAt: string;
+}
+
+export default function App() {
+    // const rawData = localStorage.getItem("formValues");
+    // const data = rawData ? JSON.parse(rawData) : [];
+    const [projects, setProjects] = useState<IProject[]>([]);
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const { data: projects } = await api.get("/projects");
+                const sortedProjects = projects.sort((a: IProject, b: IProject) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                setProjects(sortedProjects);
+            } catch (error) {
+                console.error("Error fetching projects:", error);
+            }
+        };
+
+        fetchProjects();
+    }, []);
 
     return (
         <>
@@ -18,7 +48,7 @@ export default function TaskPage() {
                         <UserNav />
                     </div>
                 </div>
-                <DataTable data={data} columns={columns} />
+                <DataTable data={projects} columns={columns} />
             </div>
         </>
     );
