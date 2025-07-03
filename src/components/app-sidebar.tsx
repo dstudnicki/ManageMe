@@ -2,162 +2,25 @@ import * as React from "react";
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarRail } from "@/components/ui/sidebar";
 
-// This is sample data.
-// const data = {
-//     navMain: [
-//         {
-//             title: "Getting Started",
-//             url: "#",
-//             items: [
-//                 {
-//                     title: "Installation",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Project Structure",
-//                     url: "#",
-//                 },
-//             ],
-//         },
-//         {
-//             title: "Building Your Application",
-//             url: "#",
-//             items: [
-//                 {
-//                     title: "Routing",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Data Fetching",
-//                     url: "#",
-//                     isActive: true,
-//                 },
-//                 {
-//                     title: "Rendering",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Caching",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Styling",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Optimizing",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Configuring",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Testing",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Authentication",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Deploying",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Upgrading",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Examples",
-//                     url: "#",
-//                 },
-//             ],
-//         },
-//         {
-//             title: "API Reference",
-//             url: "#",
-//             items: [
-//                 {
-//                     title: "Components",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "File Conventions",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Functions",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "next.config.js Options",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "CLI",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Edge Runtime",
-//                     url: "#",
-//                 },
-//             ],
-//         },
-//         {
-//             title: "Architecture",
-//             url: "#",
-//             items: [
-//                 {
-//                     title: "Accessibility",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Fast Refresh",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Next.js Compiler",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Supported Browsers",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Turbopack",
-//                     url: "#",
-//                 },
-//             ],
-//         },
-//         {
-//             title: "Community",
-//             url: "#",
-//             items: [
-//                 {
-//                     title: "Contribution Guide",
-//                     url: "#",
-//                 },
-//             ],
-//         },
-//     ],
-// };
-
 interface ITask {
-    id: number;
+    _id: string;
     name: string;
     description: string;
     priority: string;
     userStory: string;
     createdAt: string;
     status: string;
-    user: string;
+    user: {
+        _id: string | undefined;
+        email: string;
+    };
 }
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-    users: { username: string }[];
+    users: { email: string }[];
     close: () => void;
     task?: ITask;
+    onUpdateUser: (taskId: string, userId: string) => Promise<void>;
 }
 
 export function AppSidebar({ users = [], close, task, ...props }: AppSidebarProps) {
@@ -184,14 +47,14 @@ export function AppSidebar({ users = [], close, task, ...props }: AppSidebarProp
                                 <span>Created at: {task?.createdAt}</span>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <span>Assignee: {task?.user}</span>
-                                <select defaultValue={task?.user}>
+                                <span>Assignee: {task?.user?.email}</span>
+                                <select defaultValue={task?.user?.email}>
                                     <option value="" disabled>
                                         Select a user...
                                     </option>
                                     {users.map((user, index) => (
-                                        <option key={index} value={user.username}>
-                                            {user.username}
+                                        <option key={index} value={user.email}>
+                                            {user.email}
                                         </option>
                                     ))}
                                 </select>

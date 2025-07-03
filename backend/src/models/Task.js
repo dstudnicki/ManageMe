@@ -20,7 +20,7 @@ const taskSchema = new Schema({
     },
     story: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Project",
+        ref: "Story",
         required: true,
     },
     user: {
@@ -34,4 +34,4 @@ const taskSchema = new Schema({
     },
 });
 
-module.exports = mongoose.model("Task", storySchema);
+module.exports = mongoose.model("Task", taskSchema);

@@ -43,7 +43,12 @@ export default function ProjectDetails() {
     const [projects, setProjects] = useState<IProject[]>([]);
     const [userStories, setUserStories] = useState<IUserStory[]>([]);
     const project = projects.find((p: { name: string }) => p.name === slug);
-    console.log(userStories);
+
+    const status = statuses.find((status) => status.value === project?.status);
+    const notStartedStories = userStories.filter((story) => story.status === "not started");
+    const inProgressStories = userStories.filter((story) => story.status === "in progress");
+    const doneStories = userStories.filter((story) => story.status === "done");
+    const priority = priorities.find((priority) => priority.value === project?.priority);
 
     const fetchUserStories = async () => {
         try {
@@ -102,17 +107,6 @@ export default function ProjectDetails() {
         fetchProjects();
         fetchUserStories();
     }, []);
-
-    const status = statuses.find((status) => status.value === project?.status);
-
-    const notStartedStories = userStories.filter((story) => story.status === "not started");
-    const inProgressStories = userStories.filter((story) => story.status === "in progress");
-    const doneStories = userStories.filter((story) => story.status === "done");
-    const priority = priorities.find((priority) => priority.value === project?.priority);
-
-    // useEffect(() => {
-    //     localStorage.setItem("userStories", JSON.stringify(userStories));
-    // }, [userStories]);
 
     if (!project) return <p>Project not found</p>;
 

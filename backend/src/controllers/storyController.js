@@ -49,7 +49,7 @@ const deleteStory = async (req, res) => {
         await Story.deleteOne({ _id: story._id });
         res.status(200).json({ message: "Story deleted successfully" });
     } catch (error) {
-        console.error("Error deleting story:", error); // Log the error
+        console.error("Error deleting story:", error);
         res.status(500).json({ error: "Failed to delete story", message: error.message });
     }
 };
