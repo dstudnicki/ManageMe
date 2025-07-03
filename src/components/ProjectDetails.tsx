@@ -3,13 +3,14 @@ import { priorities, statuses } from "../data/data";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, StickyNote } from "lucide-react";
-import { UserStory } from "@/UserStory/UserStory";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "@/services/api";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
 interface IUserStory {
-    id: number;
+    _id: string;
     name: string;
     description: string;
     priority: string;
@@ -17,6 +18,10 @@ interface IUserStory {
     createdAt: string;
     status: string;
     tasks: object;
+    user: {
+        _id: string | undefined;
+        email: string;
+    };
 }
 
 interface IProject {
@@ -35,23 +40,67 @@ interface IProject {
 export default function ProjectDetails() {
     const { slug } = useParams();
     const creationDate = new Date().toISOString();
-    // const projects = JSON.parse(localStorage.getItem("formValues") || "[]");
     const [projects, setProjects] = useState<IProject[]>([]);
     const [userStories, setUserStories] = useState<IUserStory[]>([]);
     const project = projects.find((p: { name: string }) => p.name === slug);
+    console.log(userStories);
+
+    const fetchUserStories = async () => {
+        try {
+            const { data: stories } = await api.get("/stories");
+            const sortedStories = stories.sort((a: IUserStory, b: IUserStory) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            setUserStories(sortedStories);
+        } catch (error) {
+            console.error("Error fetching user stories:", error);
+        }
+    };
+
+    const handleAddUserStory = async (status: string) => {
+        try {
+            await api.post(
+                "/stories",
+                {
+                    name: "New User Story",
+                    description: "lalalla",
+                    priority: project?.priority || "low",
+                    project: project?._id,
+                    createdAt: creationDate,
+                    status: status,
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            await fetchUserStories();
+        } catch (error) {
+            console.error("Failed to add user story:", error);
+        }
+    };
+
+    const deleteStory = async (storyId: string) => {
+        try {
+            await api.delete(`/stories/${storyId}`);
+            setUserStories((prevStories) => prevStories.filter((story) => story._id !== storyId));
+        } catch (error) {
+            console.error("Failed to delete post:", error);
+        }
+    };
 
     useEffect(() => {
         const fetchProjects = async () => {
             try {
                 const { data: projects } = await api.get("/projects");
-                const sortedProjects = projects.sort((a: IProject, b: IProject) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-                setProjects(sortedProjects);
+                setProjects(projects);
             } catch (error) {
                 console.error("Error fetching projects:", error);
             }
         };
 
         fetchProjects();
+        fetchUserStories();
     }, []);
 
     const status = statuses.find((status) => status.value === project?.status);
@@ -59,17 +108,11 @@ export default function ProjectDetails() {
     const notStartedStories = userStories.filter((story) => story.status === "not started");
     const inProgressStories = userStories.filter((story) => story.status === "in progress");
     const doneStories = userStories.filter((story) => story.status === "done");
-
     const priority = priorities.find((priority) => priority.value === project?.priority);
 
-    const handleAddUserStory = (status: string) => {
-        const newUserStory = new UserStory(Date.now(), "User Story", "", "", project?.name || "", creationDate, status, {});
-        setUserStories((prev) => [...prev, newUserStory]);
-    };
-
-    useEffect(() => {
-        localStorage.setItem("userStories", JSON.stringify(userStories));
-    }, [userStories]);
+    // useEffect(() => {
+    //     localStorage.setItem("userStories", JSON.stringify(userStories));
+    // }, [userStories]);
 
     if (!project) return <p>Project not found</p>;
 
@@ -88,12 +131,25 @@ export default function ProjectDetails() {
                         <p className=" text-sm ">Not started</p>
                     </div>
                     {notStartedStories.map((story, index) => (
-                        <Link to={`${story.id}`} key={index}>
+                        <Link to={`${story._id}`} key={index}>
                             <Card className="py-2 gap-4">
-                                <CardHeader className="px-2.5 pb-1.5">
+                                <CardHeader className="flex-row items-center justify-between px-2.5 pb-1.5">
                                     <CardTitle className="flex text-sm font-normal gap-2">
                                         <StickyNote className="h-5 w-5" /> {story.name}
                                     </CardTitle>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted">
+                                                <MoreHorizontal />
+                                                <span className="sr-only">Open menu</span>
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-[160px]">
+                                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem onClick={() => deleteStory(story._id)}>Delete</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </CardHeader>
                                 <CardContent className="text-xs px-2.5 pb-1.5">
                                     <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[130px] h-[18px] px-2">
@@ -115,10 +171,23 @@ export default function ProjectDetails() {
                     </div>
                     {inProgressStories.map((story, index) => (
                         <Card key={index} className="py-2 gap-4">
-                            <CardHeader className="px-2.5 pb-1.5">
+                            <CardHeader className="flex-row items-center justify-between px-2.5 pb-1.5">
                                 <CardTitle className="flex text-sm font-normal gap-2">
                                     <StickyNote className="h-5 w-5" /> {story.name}
                                 </CardTitle>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted">
+                                            <MoreHorizontal />
+                                            <span className="sr-only">Open menu</span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-[160px]">
+                                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => deleteStory(story._id)}>Delete</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </CardHeader>
                             <CardContent className="text-xs px-2.5 pb-1.5">
                                 <div className="flex items-center gap-[6px] rounded-2xl bg-[#adefff] bg-opacity-25 w-[130px] h-[18px] px-2">
@@ -139,10 +208,23 @@ export default function ProjectDetails() {
                     </div>
                     {doneStories.map((story, index) => (
                         <Card key={index} className="py-2 gap-4">
-                            <CardHeader className="px-2.5 pb-1.5">
+                            <CardHeader className="flex-row items-center justify-between px-2.5 pb-1.5">
                                 <CardTitle className="flex text-sm font-normal gap-2">
                                     <StickyNote className="h-5 w-5" /> {story.name}
                                 </CardTitle>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted">
+                                            <MoreHorizontal />
+                                            <span className="sr-only">Open menu</span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-[160px]">
+                                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => deleteStory(story._id)}>Delete</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </CardHeader>
                             <CardContent className="text-xs px-2.5 pb-1.5">
                                 <div className="flex items-center gap-[6px] rounded-2xl bg-[#acffda] bg-opacity-25 w-[130px] h-[18px] px-2">
