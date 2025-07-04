@@ -5,7 +5,7 @@ import { Table } from "@tanstack/react-table";
 import { Settings2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 
 interface DataTableViewOptionsProps<TData> {
     table: Table<TData>;
@@ -22,7 +22,6 @@ export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[150px]">
                 <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
-                <DropdownMenuSeparator />
                 {table
                     .getAllColumns()
                     .filter((column) => typeof column.accessorFn !== "undefined" && column.getCanHide())

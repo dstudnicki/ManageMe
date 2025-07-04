@@ -1,5 +1,3 @@
-"use client";
-
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -8,6 +6,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { useAuth } from "../hooks/useAuth";
 import { Link } from "react-router";
+import { useNavigate } from "react-router-dom"; // Adjust the import based on your routing library
 
 const formSchema = z
     .object({
@@ -26,9 +25,8 @@ const formSchema = z
     });
 
 export default function RegisterForm() {
-    const { login } = useAuth();
-    const { register } = useAuth();
-
+    const { login, register } = useAuth();
+    const navigate = useNavigate();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -36,11 +34,11 @@ export default function RegisterForm() {
         },
     });
 
-    // 2. Define a submit handler.
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             await register(values.email, values.password);
             await login(values.email, values.password);
+            navigate("/");
         } catch (error) {
             console.error("Login failed:", error);
         }
@@ -95,7 +93,7 @@ export default function RegisterForm() {
                 />
                 <div className="space-x-1">
                     <span>Already have an account?</span>
-                    <Link className="font-bold" to="./login">
+                    <Link className="font-bold" to="/login">
                         Log in.
                     </Link>
                 </div>

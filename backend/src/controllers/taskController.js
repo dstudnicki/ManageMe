@@ -2,13 +2,14 @@ const Task = require("../models/Task");
 
 const createTask = async (req, res) => {
     try {
-        const { name, description, status, priority, story } = req.body;
+        const { name, description, status, priority, story, project } = req.body;
         const task = await Task.create({
             name,
             description,
             status,
             priority,
             story,
+            project,
             user: req.userId,
         });
         res.status(201).json(task);
@@ -26,12 +27,50 @@ const getAllTasks = async (req, res) => {
     }
 };
 
-const getProjectsByUser = async (req, res) => {
+const getTaskById = async (req, res) => {
     try {
-        const projects = await Project.find({ user: req.params.userId }).populate("user", "email");
-        res.status(200).json(projects);
+        const { id } = req.params;
+
+        const tasks = await Task.findById(id);
+
+        if (!tasks) {
+            return res.status(404).json({ error: "Task not found" });
+        }
+        res.status(200).json(tasks);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch projects" });
+        res.status(500).json({ error: "Failed to fetch desired task" });
+    }
+};
+
+const updateTask = async (req, res) => {
+    try {
+        const taskId = req.params.id;
+        const { name, description, priority, status, user } = req.body;
+
+        const updateFields = {};
+        if (name) updateFields.name = name;
+        if (description) updateFields.description = description;
+        if (priority) updateFields.priority = priority;
+        if (status) updateFields.status = status;
+        if (user) updateFields.user = user;
+
+        if (Object.keys(updateFields).length === 0) {
+            return res.status(400).json({ error: "No fields provided for update" });
+        }
+
+        const task = await Task.findById(taskId);
+        if (!task) {
+            return res.status(404).json({ error: "Task not found" });
+        }
+
+        const updatedTask = await Task.findByIdAndUpdate(taskId, updateFields, {
+            new: true,
+            runValidators: true,
+        });
+
+        res.status(200).json({ message: "Task updated successfully", task: updatedTask });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update task", message: error.message });
     }
 };
 
@@ -40,10 +79,6 @@ const deleteTask = async (req, res) => {
         const task = await Task.findById(req.params.id);
         if (!task) {
             return res.status(404).json({ error: "Task not found" });
-        }
-
-        if (task.user.toString() !== req.userId) {
-            return res.status(403).json({ error: "Unauthorized to delete this task" });
         }
 
         await Task.deleteOne({ _id: task._id });
@@ -57,6 +92,7 @@ const deleteTask = async (req, res) => {
 module.exports = {
     createTask,
     getAllTasks,
-    getProjectsByUser,
+    getTaskById,
+    updateTask,
     deleteTask,
 };

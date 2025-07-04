@@ -1,6 +1,6 @@
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { api } from "@/services/api";
 
 interface DataTableRowActionsProps {
@@ -31,8 +31,6 @@ export function DataTableRowActions({ projectId, onDelete }: DataTableRowActions
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[160px]">
-                <DropdownMenuItem>Edit</DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={deleteProject}>Delete</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

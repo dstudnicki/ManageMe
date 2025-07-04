@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { api } from "@/services/api";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 
 interface ITask {
@@ -15,7 +15,12 @@ interface ITask {
     name: string;
     description: string;
     priority: string;
-    userStory: string;
+    story: {
+        _id: string | undefined;
+    };
+    project: {
+        _id: string | undefined;
+    };
     createdAt: string;
     status: string;
     user: {
@@ -29,7 +34,9 @@ interface IUserStory {
     name: string;
     description: string;
     priority: string;
-    project: string;
+    project: {
+        _id: string | undefined;
+    };
     createdAt: string;
     status: string;
     tasks: object;
@@ -59,7 +66,8 @@ export default function UserStoriesDetails() {
     const fetchTasks = async () => {
         try {
             const { data: tasks } = await api.get("/tasks");
-            const sortedTasks = tasks.sort((a: ITask, b: ITask) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            const filteredTasks = tasks.filter((task: ITask) => task.story && task.story._id === id);
+            const sortedTasks = filteredTasks.sort((a: ITask, b: ITask) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             setTasks(sortedTasks);
         } catch (error) {
             console.error("Error fetching user stories:", error);
@@ -76,6 +84,7 @@ export default function UserStoriesDetails() {
                     status: status,
                     priority: userStory?.priority || "low",
                     story: userStory?._id,
+                    project: userStory?.project._id,
                     createdAt: creationDate,
                 },
                 {
@@ -141,8 +150,55 @@ export default function UserStoriesDetails() {
             });
 
             await fetchTasks();
+            const updated = await api.get(`/tasks/${taskId}`);
+            setSelectedTask(updated.data);
         } catch (error) {
             console.error("Failed to update task user:", error);
+        }
+    };
+
+    const updateTaskName = async (taskId: string, name: string) => {
+        console.log("Updating task:", taskId, "with name:", name);
+        try {
+            await api.patch(`/tasks/${taskId}`, { name });
+            await fetchTasks();
+            const updated = await api.get(`/tasks/${taskId}`);
+            setSelectedTask(updated.data);
+        } catch (error) {
+            console.error("Failed to update task name :", error);
+        }
+    };
+
+    const updateTaskDescription = async (taskId: string, description: string) => {
+        try {
+            await api.patch(`/tasks/${taskId}`, { description });
+            await fetchTasks();
+            const updated = await api.get(`/tasks/${taskId}`);
+            setSelectedTask(updated.data);
+        } catch (error) {
+            console.error("Failed to update task  description:", error);
+        }
+    };
+
+    const updateTaskPriority = async (taskId: string, priority: string) => {
+        try {
+            await api.patch(`/tasks/${taskId}`, { priority });
+            await fetchTasks();
+            const updated = await api.get(`/tasks/${taskId}`);
+            setSelectedTask(updated.data);
+        } catch (error) {
+            console.error("Failed to update task priority:", error);
+        }
+    };
+
+    const updateTaskStatus = async (taskId: string, status: string) => {
+        try {
+            await api.patch(`/tasks/${taskId}`, { status });
+            await fetchTasks();
+            const updated = await api.get(`/tasks/${taskId}`);
+            setSelectedTask(updated.data);
+        } catch (error) {
+            console.error("Failed to update task status:", error);
         }
     };
 
@@ -150,12 +206,15 @@ export default function UserStoriesDetails() {
 
     return (
         <main className="flex flex-col px-4 text-xl xl:container sm:px-8 lg:px-12">
-            <div className="flex flex-col md:flex-row md:gap-4">
-                <h1>{userStory.name}</h1>
-                <h3>{userStory.description}</h3>
-                <span>{status?.label}</span>
-                <span>{priority?.label}</span>
-            </div>
+            <section className="mt-6 mb-4 rounded-xl bg-muted p-6 shadow-sm">
+                <h1 className="text-3xl font-semibold mb-2">{userStory.name}</h1>
+                <p className="text-muted-foreground mb-4">{userStory.description}</p>
+                <div className="flex flex-wrap gap-4 text-sm">
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">Status: {status?.label}</span>
+                    <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full font-medium">Priority: {priority?.label}</span>
+                </div>
+            </section>
+
             <section className="mt-6 grid grid-rows-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Card className="flex flex-col bg-muted gap-2 p-2">
                     <div className="flex items-center gap-[6px] rounded-2xl bg-[#d8d8d8] bg-opacity-25 w-[130px] h-[20px] px-2 my-2">
@@ -170,15 +229,19 @@ export default function UserStoriesDetails() {
                                 </CardTitle>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted">
+                                        <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted" onClick={(e) => e.stopPropagation()}>
                                             <MoreHorizontal />
                                             <span className="sr-only">Open menu</span>
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-[160px]">
-                                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => deleteTask(task._id)}>Delete</DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                deleteTask(task._id);
+                                            }}>
+                                            Delete
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </CardHeader>
@@ -200,22 +263,26 @@ export default function UserStoriesDetails() {
                         <p className=" text-sm text-[#092f38]">In progress</p>
                     </div>
                     {inProgressStories.map((task, index) => (
-                        <Card key={index} className="py-2 gap-4">
+                        <Card key={index} className="py-2 gap-4" onClick={() => handleOpenSidebar(task)}>
                             <CardHeader className="flex-row items-center justify-between px-2.5 pb-1.5">
                                 <CardTitle className="flex text-sm font-normal gap-2">
                                     <StickyNote className="h-5 w-5" /> {task.name}
                                 </CardTitle>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted">
+                                        <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted" onClick={(e) => e.stopPropagation()}>
                                             <MoreHorizontal />
                                             <span className="sr-only">Open menu</span>
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-[160px]">
-                                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => deleteTask(task._id)}>Delete</DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                deleteTask(task._id);
+                                            }}>
+                                            Delete
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </CardHeader>
@@ -237,22 +304,26 @@ export default function UserStoriesDetails() {
                         <p className=" text-sm text-[#053821] ">Done</p>
                     </div>
                     {doneStories.map((task, index) => (
-                        <Card key={index} className="py-2 gap-4">
+                        <Card key={index} className="py-2 gap-4" onClick={() => handleOpenSidebar(task)}>
                             <CardHeader className="flex-row items-center justify-between px-2.5 pb-1.5">
                                 <CardTitle className="flex text-sm font-normal gap-2">
                                     <StickyNote className="h-5 w-5" /> {task.name}
                                 </CardTitle>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted">
+                                        <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted" onClick={(e) => e.stopPropagation()}>
                                             <MoreHorizontal />
                                             <span className="sr-only">Open menu</span>
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-[160px]">
-                                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => deleteTask(task._id)}>Delete</DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                deleteTask(task._id);
+                                            }}>
+                                            Delete
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </CardHeader>
@@ -270,7 +341,20 @@ export default function UserStoriesDetails() {
                 </Card>
             </section>
             <SidebarProvider>
-                {sidebarOpen && selectedTask && <AppSidebar side="right" task={selectedTask} close={() => handleCloseSidebar()} users={users} onUpdateUser={updateTaskUser} />}
+                {sidebarOpen && selectedTask && (
+                    <AppSidebar
+                        typeLabel="Task"
+                        side="right"
+                        entity={selectedTask}
+                        close={() => handleCloseSidebar()}
+                        users={users}
+                        onUpdateName={updateTaskName}
+                        onUpdateDescription={updateTaskDescription}
+                        onUpdateUser={updateTaskUser}
+                        onUpdatePriority={updateTaskPriority}
+                        onUpdateStatus={updateTaskStatus}
+                    />
+                )}
             </SidebarProvider>
         </main>
     );

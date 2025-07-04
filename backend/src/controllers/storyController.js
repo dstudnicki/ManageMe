@@ -26,12 +26,50 @@ const getAllStories = async (req, res) => {
     }
 };
 
-const getProjectsByUser = async (req, res) => {
+const getStoryById = async (req, res) => {
     try {
-        const projects = await Project.find({ user: req.params.userId }).populate("user", "email");
-        res.status(200).json(projects);
+        const { id } = req.params;
+
+        const stories = await Story.findById(id);
+
+        if (!stories) {
+            return res.status(404).json({ error: "Story not found" });
+        }
+        res.status(200).json(stories);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch projects" });
+        res.status(500).json({ error: "Failed to fetch desired story" });
+    }
+};
+
+const updateStory = async (req, res) => {
+    try {
+        const storyId = req.params.id;
+        const { name, description, priority, status, user } = req.body;
+
+        const updateFields = {};
+        if (name) updateFields.name = name;
+        if (description) updateFields.description = description;
+        if (priority) updateFields.priority = priority;
+        if (status) updateFields.status = status;
+        if (user) updateFields.user = user;
+
+        if (Object.keys(updateFields).length === 0) {
+            return res.status(400).json({ error: "No fields provided for update" });
+        }
+
+        const story = await Story.findById(storyId);
+        if (!story) {
+            return res.status(404).json({ error: "Story not found" });
+        }
+
+        const updatedStory = await Story.findByIdAndUpdate(storyId, updateFields, {
+            new: true,
+            runValidators: true,
+        });
+
+        res.status(200).json({ message: "Story updated successfully", story: updatedStory });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update story", message: error.message });
     }
 };
 
@@ -40,10 +78,6 @@ const deleteStory = async (req, res) => {
         const story = await Story.findById(req.params.id);
         if (!story) {
             return res.status(404).json({ error: "Story not found" });
-        }
-
-        if (story.user.toString() !== req.userId) {
-            return res.status(403).json({ error: "Unauthorized to delete this story" });
         }
 
         await Story.deleteOne({ _id: story._id });
@@ -57,6 +91,7 @@ const deleteStory = async (req, res) => {
 module.exports = {
     createStory,
     getAllStories,
-    getProjectsByUser,
+    getStoryById,
+    updateStory,
     deleteStory,
 };

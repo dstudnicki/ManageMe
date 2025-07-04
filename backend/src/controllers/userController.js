@@ -2,6 +2,15 @@ const Project = require("../models/Project");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().select("-password");
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch users" });
+    }
+};
+
 const getUserProfile = async (req, res) => {
     try {
         const { email } = req.params;
@@ -68,6 +77,7 @@ const updateUserProfile = async (req, res) => {
 };
 
 module.exports = {
+    getAllUsers,
     getUserProfile,
     updateUserProfile,
     getUserProfileById,

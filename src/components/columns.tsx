@@ -6,6 +6,8 @@ import { priorities, statuses } from "../data/data";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Link } from "react-router";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface IProject {
     _id: string;
@@ -40,7 +42,7 @@ export const columns: ColumnDef<IProject>[] = [
         header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
         cell: ({ row }) => (
             <div className="w-[80px]">
-                <Link to={`/project/${row.getValue("name")}`}>{row.getValue("name")}</Link>
+                <span className="max-w-[500px] truncate font-medium">{row.getValue("name")}</span>
             </div>
         ),
         enableSorting: false,
@@ -99,8 +101,22 @@ export const columns: ColumnDef<IProject>[] = [
             return value.includes(row.getValue(id));
         },
     },
+
     {
         id: "actions",
         cell: ({ row }) => <DataTableRowActions projectId={row.original._id.toString()} />,
+    },
+    {
+        id: "details",
+        cell: ({ row }) => {
+            const projectId = row.original._id;
+            return (
+                <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted">
+                    <Link to={`/${projectId}`} aria-label={`Go to project ${row.getValue("name")} details`}>
+                        <ArrowRight className="h-4 w-4" />
+                    </Link>
+                </Button>
+            );
+        },
     },
 ];
