@@ -18,8 +18,6 @@ interface IProject {
 }
 
 export default function App() {
-    // const rawData = localStorage.getItem("formValues");
-    // const data = rawData ? JSON.parse(rawData) : [];
     const [projects, setProjects] = useState<IProject[]>([]);
 
     useEffect(() => {

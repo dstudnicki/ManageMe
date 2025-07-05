@@ -57,8 +57,6 @@ export default function ProjectDetails() {
     const [selectedStory, setSelectedStory] = useState<IUserStory | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // const status = statuses.find((status) => status.value === project?.status);
-    // const priority = priorities.find((priority) => priority.value === project?.priority);
     const notStartedStories = userStories.filter((story) => story.status === "not started");
     const inProgressStories = userStories.filter((story) => story.status === "in progress");
     const doneStories = userStories.filter((story) => story.status === "done");
@@ -152,7 +150,6 @@ export default function ProjectDetails() {
             await api.patch(`/projects/${project._id}`, {
                 [field]: value,
             });
-            // Refresh projects list after update
             await fetchProjects();
         } catch (error) {
             console.error(`Failed to update project ${field}:`, error);
@@ -234,8 +231,6 @@ export default function ProjectDetails() {
             console.error("Failed to update task status:", error);
         }
     };
-
-    if (!project) return <p>Project not found</p>;
 
     return (
         <main className="flex flex-col px-4 text-xl xl:container sm:px-8 lg:px-12">

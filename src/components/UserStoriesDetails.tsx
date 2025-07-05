@@ -202,13 +202,11 @@ export default function UserStoriesDetails() {
         }
     };
 
-    if (!userStory) return <p>Project not found</p>;
-
     return (
         <main className="flex flex-col px-4 text-xl xl:container sm:px-8 lg:px-12">
             <section className="mt-6 mb-4 rounded-xl bg-muted p-6 shadow-sm">
-                <h1 className="text-3xl font-semibold mb-2">{userStory.name}</h1>
-                <p className="text-muted-foreground mb-4">{userStory.description}</p>
+                <h1 className="text-3xl font-semibold mb-2">{userStory?.name}</h1>
+                <p className="text-muted-foreground mb-4">{userStory?.description}</p>
                 <div className="flex flex-wrap gap-4 text-sm">
                     <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">Status: {status?.label}</span>
                     <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full font-medium">Priority: {priority?.label}</span>

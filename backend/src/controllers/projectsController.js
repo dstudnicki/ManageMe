@@ -66,13 +66,8 @@ const deleteProject = async (req, res) => {
             return res.status(404).json({ error: "Project not found" });
         }
 
-        // Delete user stories related to this project
         await UserStory.deleteMany({ project: project._id });
-
-        // Delete tasks related to this project
         await Task.deleteMany({ project: project._id });
-
-        // Now delete the project itself
         await Project.deleteOne({ _id: project._id });
 
         res.status(200).json({ message: "Project and related data deleted successfully" });
