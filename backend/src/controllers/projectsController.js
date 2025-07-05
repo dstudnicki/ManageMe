@@ -48,6 +48,10 @@ const updateProject = async (req, res) => {
             return res.status(404).json({ error: "Project not found" });
         }
 
+        if (project.user.toString() !== req.userId) {
+            return res.status(403).json({ error: "Unauthorized to update this project" });
+        }
+
         const updatedProject = await Project.findByIdAndUpdate(projectId, updateFields, {
             new: true,
             runValidators: true,
@@ -64,6 +68,10 @@ const deleteProject = async (req, res) => {
         const project = await Project.findById(req.params.id);
         if (!project) {
             return res.status(404).json({ error: "Project not found" });
+        }
+
+        if (project.user.toString() !== req.userId) {
+            return res.status(403).json({ error: "Unauthorized to delete this project" });
         }
 
         await UserStory.deleteMany({ project: project._id });

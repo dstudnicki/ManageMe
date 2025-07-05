@@ -62,6 +62,10 @@ const updateStory = async (req, res) => {
             return res.status(404).json({ error: "Story not found" });
         }
 
+        if (story.user.toString() !== req.userId) {
+            return res.status(403).json({ error: "Unauthorized to update this story" });
+        }
+
         const updatedStory = await Story.findByIdAndUpdate(storyId, updateFields, {
             new: true,
             runValidators: true,
@@ -78,6 +82,10 @@ const deleteStory = async (req, res) => {
         const story = await Story.findById(req.params.id);
         if (!story) {
             return res.status(404).json({ error: "Story not found" });
+        }
+
+        if (story.user.toString() !== req.userId) {
+            return res.status(403).json({ error: "Unauthorized to delete this story" });
         }
 
         await Story.deleteOne({ _id: story._id });

@@ -11,6 +11,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal } from "lucide-react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
+import axios from "axios";
 
 interface IUserStory {
     _id: string;
@@ -120,12 +123,21 @@ export default function ProjectDetails() {
         }
     };
 
+    // Example of deleting a user story function using Toaster from ShadCN to show frontend response based on respone status
     const deleteStory = async (storyId: string) => {
         try {
             await api.delete(`/stories/${storyId}`);
             setUserStories((prevStories) => prevStories.filter((story) => story._id !== storyId));
+            toast.success("Story deleted successfully.");
         } catch (error) {
-            console.error("Failed to delete post:", error);
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 403) {
+                    toast.error("You are not allowed to delete this story");
+                } else {
+                    toast.error("Failed to delete story");
+                }
+            }
+            console.error("Failed to delete story:", error);
         }
     };
 
@@ -173,17 +185,36 @@ export default function ProjectDetails() {
         setSelectedStory(null);
     };
 
+    // Example of updating a user story function using Toaster from ShadCN to show frontend response based on respone status
     const updateStoryUser = async (storyId: string, userId: string) => {
         try {
             await api.patch(`/stories/${storyId}`, {
                 user: userId,
             });
 
+            console.log("1. Patching story...");
+            await api.patch(`/stories/${storyId}`, { user: userId });
+
+            console.log("2. Fetching user stories...");
             await fetchUserStories();
+
+            console.log("3. Getting updated story...");
             const updated = await api.get(`/stories/${storyId}`);
+
+            console.log("4. Setting selected story...");
             setSelectedStory(updated.data);
+
+            console.log("5. Showing toast...");
+            toast.success("Story updated successfully.");
         } catch (error) {
-            console.error("Failed to update task user:", error);
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 403) {
+                    toast.error("You are not allowed to update this story");
+                } else {
+                    toast.error("Failed to update story");
+                }
+            }
+            console.error("Failed to update story:", error);
         }
     };
 
@@ -449,7 +480,7 @@ export default function ProjectDetails() {
             <SidebarProvider>
                 {sidebarOpen && selectedStory && (
                     <AppSidebar
-                        typeLabel="Task"
+                        typeLabel="User Story"
                         side="right"
                         entity={selectedStory}
                         close={() => handleCloseSidebar()}
@@ -462,6 +493,7 @@ export default function ProjectDetails() {
                     />
                 )}
             </SidebarProvider>
+            <Toaster />
         </main>
     );
 }

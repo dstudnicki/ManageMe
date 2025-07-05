@@ -59,8 +59,13 @@ const updateTask = async (req, res) => {
         }
 
         const task = await Task.findById(taskId);
+
         if (!task) {
             return res.status(404).json({ error: "Task not found" });
+        }
+
+        if (task.user.toString() !== req.userId) {
+            return res.status(403).json({ error: "Unauthorized to update this task" });
         }
 
         const updatedTask = await Task.findByIdAndUpdate(taskId, updateFields, {
@@ -79,6 +84,10 @@ const deleteTask = async (req, res) => {
         const task = await Task.findById(req.params.id);
         if (!task) {
             return res.status(404).json({ error: "Task not found" });
+        }
+
+        if (task.user.toString() !== req.userId) {
+            return res.status(403).json({ error: "Unauthorized to delete this task" });
         }
 
         await Task.deleteOne({ _id: task._id });
